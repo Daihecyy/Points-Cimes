@@ -8,9 +8,10 @@ import { ThemedView } from '@/components/ThemedView';
 
 import React from "react";
 import { MapView } from "@maplibre/maplibre-react-native";
+import MainMap from '@/components/MainMap';
 
 export default function HomeScreen() {
-  return <MapView style={{ flex: 1 }} />;
+  return <MainMap />;
 }
 
 const styles = StyleSheet.create({
