@@ -8,7 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 
 import React from "react";
 import { MapView } from "@maplibre/maplibre-react-native";
-import MainMap from '@/components/MainMap';
+import MainMap from '@/components/map/MainMap';
 
 export default function HomeScreen() {
   return <MainMap />;
