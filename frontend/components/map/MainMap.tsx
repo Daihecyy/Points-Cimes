@@ -1,12 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, PermissionsAndroid, Alert, Pressable } from 'react-native';
-import { MapView, RasterLayer, RasterSource, UserLocation, Camera, UserTrackingMode, MapLibreRNEvent, CameraRef } from '@maplibre/maplibre-react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, PermissionsAndroid, Alert, Pressable, Text, Platform } from 'react-native';
+import { MapView, RasterLayer, RasterSource, UserLocation, Camera, UserTrackingMode, MapLibreRNEvent, CameraRef, Location, PointAnnotation, StyleURL } from '@maplibre/maplibre-react-native';
 import { IconSymbol } from '../ui/IconSymbol';
+import ReportMarker from './ReportMarker';
+
+const MONT_BLANC_COORDINATES = [6.865575, 45.832119];
+// License: https://operations.osmfoundation.org/policies/tiles/
+export const OSM_RASTER_STYLE = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster",
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution: "&copy; OpenStreetMap Contributors",
+      maxzoom: 19,
+    },
+  },
+  layers: [
+    {
+      id: "osm",
+      type: "raster",
+      source: "osm",
+    },
+  ],
+};
 
 function MainMap() {
   const cameraRef = useRef<CameraRef>(null);
-  const [isFollowingUser, setIsFollowingUser] = useState<boolean>(false);
   const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
+  const [userLastLocation, setUserLastLocation] = useState<Location["coords"] | null>(null);
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean>(false);
   const requestLocationPermission = async () => {
     try {
@@ -37,14 +60,19 @@ function MainMap() {
   const onMapDidFinishLoading = () => {
     console.log('Map has finished loading');
     setIsMapLoaded(true);
-    if (hasLocationPermission) {
-      setIsFollowingUser(true);
-    }
   };
-  const onCenterUserLocation = () => {
-    if (cameraRef.current && hasLocationPermission) {
+  const userLocationUpdate = (event: Location) => {
+    if (event.coords) {
+      setUserLastLocation(event.coords);
+    }
+  }
+  const centerUserLocation = () => {
+    if (cameraRef.current && hasLocationPermission && userLastLocation) {
+      console.log(userLastLocation)
       cameraRef.current.setCamera({
-        zoomLevel: 15,
+        pitch: 0,
+        centerCoordinate: [userLastLocation.longitude, userLastLocation.latitude],
+        zoomLevel: 16,
         animationMode: 'flyTo',
         animationDuration: 1500,
       });
@@ -56,6 +84,22 @@ function MainMap() {
   useEffect(() => {
     requestLocationPermission();
   }, []);
+  const [reports, setReports] = useState([
+    {
+      id: 'report_1',
+      coordinate: [6.866, 45.832] as [number, number],
+      title: 'Trail Hazard!',
+      description: 'Fallen tree blocking path.',
+      type: 'hazard',
+    },
+    {
+      id: 'report_2',
+      coordinate: [6.88, 45.91] as [number, number],
+      title: 'Beautiful Viewpoint',
+      description: 'Stunning panoramic views of Mont Blanc.',
+      type: 'viewpoint',
+    },
+  ]);
   return (
     <View style={styles.page}>
       <MapView
@@ -64,33 +108,36 @@ function MainMap() {
         localizeLabels={true}
       >
         <RasterSource
-          id="osmRasterSource"
-          tileUrlTemplates={['https://tile.openstreetmap.org/{z}/{x}/{y}.png']}
-          tileSize={256} // OSM tiles are 256x256 pixels
-          maxZoomLevel={19} // Max zoom level supported by OSM tiles
-          attribution="© OpenStreetMap contributors" // Essential for legal compliance!
+          id="osm-raster-source"
+          tileUrlTemplates={OSM_RASTER_STYLE.sources.osm.tiles}
+          {...OSM_RASTER_STYLE.sources.osm}
         >
           <RasterLayer
-            id="osmRasterLayer"
-            sourceID="osmRasterSource"
+            id="osm-raster-layer"
+            style={{ rasterOpacity: 1 }}
+            belowLayerID="org.maplibre.annotations.points" // IMPORTANT 
           />
         </RasterSource>
+        {reports.map((report) => { return <ReportMarker key={report.id} id={report.id} coordinate={report.coordinate} title={report.title} type={report.type} /> })}
         {(hasLocationPermission) &&
           <UserLocation
-            minDisplacement={2}
+            minDisplacement={0}
             androidRenderMode="gps"
+            onUpdate={userLocationUpdate}
           />
         }
         <Camera
           ref={cameraRef}
-          followUserLocation={hasLocationPermission && isFollowingUser}
-          followUserMode={UserTrackingMode.FollowWithCourse}
-          followZoomLevel={15}
-          animationMode="flyTo"
-          animationDuration={1000} // Duration of the animation
+          defaultSettings={
+            {
+              centerCoordinate: MONT_BLANC_COORDINATES,
+              zoomLevel: 15,
+              animationDuration: 1000,
+            }
+          }
         />
       </MapView>
-      <Pressable onPress={onCenterUserLocation} style={styles.recenterButton}>
+      <Pressable onPress={centerUserLocation} style={styles.recenterButton}>
         <IconSymbol name={'location.circle'} color={''} />
       </Pressable>
     </View>
@@ -120,6 +167,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
   },
+  annotationCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15, // Makes it a circle
+    backgroundColor: 'blue', // Highly visible color
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  annotationText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });
-
 export default MainMap;
