@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, PermissionsAndroid, Alert, Pressable, Text, Platform } from 'react-native';
-import { MapView, RasterLayer, RasterSource, UserLocation, Camera, UserTrackingMode, MapLibreRNEvent, CameraRef, Location, PointAnnotation, StyleURL } from '@maplibre/maplibre-react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, PermissionsAndroid, Alert, Pressable } from 'react-native';
+import { MapView, RasterLayer, RasterSource, UserLocation, Camera, CameraRef, Location, MapLibreRNEvent, RegionPayload } from '@maplibre/maplibre-react-native';
 import { IconSymbol } from '../ui/IconSymbol';
 import ReportMarker, { ReportType } from './ReportMarker';
 
@@ -30,6 +30,7 @@ export const OSM_RASTER_STYLE = {
 function MainMap() {
   const cameraRef = useRef<CameraRef>(null);
   const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
+  const [currentZoomLevel, setCurrentZoomLevel] = useState<number>(15);
   const [userLastLocation, setUserLastLocation] = useState<Location["coords"] | null>(null);
   const [hasLocationPermission, setHasLocationPermission] = useState<boolean>(false);
   const requestLocationPermission = async () => {
@@ -82,6 +83,13 @@ function MainMap() {
       requestLocationPermission(); // Prompt for permission again
     }
   };
+  const handleCameraChanged = (feature: GeoJSON.Feature<GeoJSON.Point, RegionPayload>) => {
+    // WARNING : Watch for performance impact
+    if (feature.properties.zoomLevel) {
+      setCurrentZoomLevel(feature.properties.zoomLevel);
+    }
+
+  }
   useEffect(() => {
     requestLocationPermission();
   }, []);
@@ -106,6 +114,7 @@ function MainMap() {
       <MapView
         style={styles.map}
         onDidFinishLoadingMap={onMapDidFinishLoading}
+        onRegionIsChanging={handleCameraChanged}
         localizeLabels={true}
       >
         <RasterSource
@@ -119,7 +128,7 @@ function MainMap() {
             belowLayerID="org.maplibre.annotations.points" // IMPORTANT 
           />
         </RasterSource>
-        {reports.map((report) => { return <ReportMarker key={report.id} id={report.id} coordinate={report.coordinate} title={report.title} type={report.type} /> })}
+        {(currentZoomLevel > 10) && reports.map((report) => { return <ReportMarker key={report.id} id={report.id} coordinate={report.coordinate} title={report.title} type={report.type} /> })}
         {(hasLocationPermission) &&
           <UserLocation
             minDisplacement={0}
