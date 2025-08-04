@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, PermissionsAndroid, Alert, Pressable, Text, Platform } from 'react-native';
 import { MapView, RasterLayer, RasterSource, UserLocation, Camera, UserTrackingMode, MapLibreRNEvent, CameraRef, Location, PointAnnotation, StyleURL } from '@maplibre/maplibre-react-native';
 import { IconSymbol } from '../ui/IconSymbol';
-import ReportMarker from './ReportMarker';
+import ReportMarker, { ReportType } from './ReportMarker';
 
 const MONT_BLANC_COORDINATES = [6.865575, 45.832119];
+
 // License: https://operations.osmfoundation.org/policies/tiles/
 export const OSM_RASTER_STYLE = {
   version: 8,
@@ -34,7 +35,7 @@ function MainMap() {
   const requestLocationPermission = async () => {
     try {
       const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, // Request fine location for better accuracy
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: 'Location Permission',
           message: 'This app needs access to your location to show you on the map.',
@@ -90,14 +91,14 @@ function MainMap() {
       coordinate: [6.866, 45.832] as [number, number],
       title: 'Trail Hazard!',
       description: 'Fallen tree blocking path.',
-      type: 'hazard',
+      type: ReportType.Danger,
     },
     {
       id: 'report_2',
       coordinate: [6.88, 45.91] as [number, number],
       title: 'Beautiful Viewpoint',
       description: 'Stunning panoramic views of Mont Blanc.',
-      type: 'viewpoint',
+      type: ReportType.Viewpoint,
     },
   ]);
   return (

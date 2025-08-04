@@ -1,16 +1,18 @@
+import FontAwesomeIcon from "@expo/vector-icons/FontAwesome";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Callout, PointAnnotation } from "@maplibre/maplibre-react-native";
 import { ModalBaseProps, View, Text, StyleSheet } from "react-native";
 
 export enum ReportType {
     Danger,
     Balisage,
-    POV,
+    Viewpoint,
 }
 export interface ReportMarkerProps extends ModalBaseProps {
     id: string,
     coordinate: [number, number],
     title: string,
-    type: string
+    type: ReportType
 }
 
 export default function ReportMarker({ id, coordinate, title, type, ...props }: ReportMarkerProps) {
@@ -21,10 +23,13 @@ export default function ReportMarker({ id, coordinate, title, type, ...props }: 
                 coordinate={coordinate}
                 onSelected={() => console.log(id)}
             >
-                <View style={styles.annotationCircle}>
-                    <Text style={styles.annotationText}>{type === 'hazard' ? '!' : 'V'}</Text>
-                </View>
-                <Callout title={title} />
+                {
+                    {
+                        [ReportType.Danger]: <FontAwesomeIcon name={"exclamation-circle"} size={16} color={"red"} />,
+                        [ReportType.Viewpoint]: <MaterialIcons name={"landscape"} size={16} />,
+                        [ReportType.Balisage]: <MaterialIcons name={"nearby-error"} size={16} />,
+                    }[type]
+                }
             </PointAnnotation>
         </>
     )
@@ -32,10 +37,10 @@ export default function ReportMarker({ id, coordinate, title, type, ...props }: 
 
 const styles = StyleSheet.create({
     annotationCircle: {
+        flex: 1,
         width: 50,
         height: 50,
-        borderRadius: 15, // Makes it a circle
-        backgroundColor: 'red', // Highly visible color
+        backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
@@ -43,6 +48,7 @@ const styles = StyleSheet.create({
     },
     annotationText: {
         color: 'white',
+        backgroundColor: 'red',
         fontSize: 24,
         fontWeight: 'bold',
     },
