@@ -1,7 +1,7 @@
 import secrets
 import warnings
-from typing import Annotated, Any, Literal
 from pathlib import Path
+from typing import Annotated, Any, Literal
 
 from pydantic import (
     AnyUrl,
@@ -13,7 +13,6 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
-
 
 APP_DIR = Path(__file__).resolve().parent.parent
 ENV_FILE_PATH = APP_DIR.parent / ".env"
@@ -42,7 +41,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
     POINTS_CIMES_VERSION: str
 
-    CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = []
+    CORS_ORIGINS: Annotated[list[AnyUrl] |
+                            str, BeforeValidator(parse_cors)] = []
 
     @computed_field  # type: ignore[prop-decorator]
     @property

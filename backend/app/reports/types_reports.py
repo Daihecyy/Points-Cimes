@@ -3,6 +3,7 @@ from enum import Enum
 
 class ReportType(str, Enum):
     HIGHLIGHT = "highlight"
+    DANGER = "danger"
     PROBLEM = "problem"
 
 
@@ -12,8 +13,3 @@ class ReportStatus(str, Enum):
     RESOLVED = "resolved"
     ARCHIVED = "archived"
     REJECTED = "rejected"
-
-
-class VoteValue(int, Enum):
-    UP = 1
-    DOWN = -1

@@ -1,12 +1,13 @@
 import logging
+
 import alembic.command as alembic_command
 import alembic.config as alembic_config
 import alembic.migration as alembic_migration
-from sqlalchemy import Engine, MetaData, create_engine
-from sqlalchemy.engine import Connection
-
 from app.types.sqlalchemy import Base
 from app.utils.config import Settings
+from sqlalchemy import Engine, MetaData, create_engine
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 
 def get_sync_db_engine(settings: Settings) -> Engine:
@@ -17,6 +18,19 @@ def get_sync_db_engine(settings: Settings) -> Engine:
 
     engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=settings.DATABASE_DEBUG)
     return engine
+
+
+def init_engine(settings: Settings) -> AsyncEngine:
+    """
+    Return the (asynchronous) database engine, if the engine doesn't exit yet it will create one based on the settings
+    """
+
+    SQLALCHEMY_DATABASE_URL = f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}@{settings.POSTGRES_HOST}/{settings.POSTGRES_DB}"
+
+    return create_async_engine(
+        SQLALCHEMY_DATABASE_URL,
+        echo=settings.DATABASE_DEBUG,
+    )
 
 
 def drop_db_sync(conn: Connection):
