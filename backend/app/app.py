@@ -6,20 +6,16 @@ from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+from app.dependencies import init_and_get_db_engine
+from app.types.exceptions import ContentHTTPException
+from app.utils import database
+from app.utils.config import Settings
+from app.utils.log import LogConfig
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
-from app.utils.config import Settings
-from app.utils.log import LogConfig
-from app.dependencies import (
-    init_and_get_db_engine,
-)
-from app.types.exceptions import ContentHTTPException
-from app.utils import database
-
 
 # NOTE: We can not get loggers at the top of this file like we do in other files
 # as the loggers are not yet initialized
@@ -56,10 +52,6 @@ def get_application(settings: Settings, drop_db: bool = False) -> FastAPI:
     points_cimes_security_logger = logging.getLogger("points-cimes.security")
     points_cimes_error_logger = logging.getLogger("points-cimes.error")
 
-    # Create folder for calendars if they don't already exists
-    Path("data/ics/").mkdir(parents=True, exist_ok=True)
-    Path("data/core/").mkdir(parents=True, exist_ok=True)
-
     # Creating a lifespan which will be called when the application starts then shuts down
     # https://fastapi.tiangolo.com/advanced/events/
     @asynccontextmanager
@@ -76,7 +68,7 @@ def get_application(settings: Settings, drop_db: bool = False) -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
+        allow_origins=["*"],  # settings.CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

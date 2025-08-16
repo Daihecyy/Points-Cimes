@@ -6,31 +6,25 @@ from typing import Annotated
 from uuid import UUID
 
 from app.dependencies import get_db_session
-from app.reports import cruds_reports, models_reports, schemas_reports, types_reports
+from app.reports import (cruds_reports, models_reports, schemas_reports,
+                         types_reports)
 from fastapi import APIRouter, Depends, HTTPException
 from geoalchemy2 import WKBElement, WKTElement
 from sqlalchemy.ext.asyncio import AsyncSession
 
-router = APIRouter(prefix="/reports", tags=["items"])
+router = APIRouter(prefix="/reports", tags=["reports"])
 
 points_cimes_error_logger = logging.getLogger("points-cimes.error")
 
 
-@router.get("/{report_id}", response_model=schemas_reports.Report)
-async def get_report_by_id(
-    db_session: Annotated[AsyncSession, Depends(get_db_session)],
-    report_id: UUID,
-):
-    report = await cruds_reports.get_report_by_id(
-        db_session=db_session, report_id=report_id
-    )
-    if report is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Report not found",
-        )
+@router.get("/types")
+async def get_report_types():
+    return [*types_reports.ReportType]
 
-    return report
+
+@router.get("/statuses")
+async def get_report_statuses():
+    return [*types_reports.ReportStatus]
 
 
 @router.patch("/{report_id}/status", status_code=204)
@@ -137,3 +131,23 @@ async def create_report(
         db_session=db_session, report_id=report_id
     )
     return report
+
+
+@router.get("/{report_id}", response_model=schemas_reports.Report)
+async def get_report_by_id(
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    report_id: UUID,
+):
+    report_row = await cruds_reports.get_report_by_id(
+        db_session=db_session, report_id=report_id
+    )
+    if report_row is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Report not found",
+        )
+    return {
+        **report_row["Report"].__dict__,  # Unpack the attributes from the Report object
+        "latitude": report_row["latitude"],
+        "longitude": report_row["longitude"],
+    }

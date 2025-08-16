@@ -5,14 +5,17 @@ from uuid import UUID
 from app.reports.types_reports import ReportType
 from geoalchemy2 import WKBElement
 from geoalchemy2.types import Geometry
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class ReportSimple(BaseModel):
     id: UUID
     title: str
     report_type: ReportType
-    location: Dict[str, Any]
+    latitude: float
+    longitude: float
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Location(BaseModel):
@@ -22,7 +25,7 @@ class Location(BaseModel):
 class Report(ReportSimple):
     description: str
     creation_time: datetime
-    last_updated_time: datetime | None
+    # last_updated_time: datetime | None
 
 
 class ReportCreation(BaseModel):
