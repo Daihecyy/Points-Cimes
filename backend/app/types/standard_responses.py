@@ -11,3 +11,7 @@ class BatchResult(BaseModel):
     """
 
     failed: dict[str, str]
+
+
+class Message(BaseModel):
+    message: str
