@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import UUID
 
 from app.users.types_users import AccountType
 from app.utils import validators
@@ -16,7 +17,7 @@ class UserBase(BaseModel):
 class UserSimple(UserBase):
     """Simplified schema for user's model, used when getting all users"""
 
-    id: str
+    id: UUID
     account_type: AccountType
     is_active: bool
 
@@ -99,7 +100,7 @@ class UserActivateRequest(UserBase):
 
 class UserRecoverRequest(BaseModel):
     email: str
-    user_id: str
+    user_id: UUID
     reset_token: str
     created_on: datetime
     expire_on: datetime

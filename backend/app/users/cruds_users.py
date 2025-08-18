@@ -104,6 +104,7 @@ async def update_user(
         .where(models_users.User.id == user_id)
         .values(**user_update.model_dump(exclude_none=True)),
     )
+    await db_session.commit()
 
 
 async def create_unconfirmed_user(
@@ -192,20 +193,6 @@ async def get_recover_request_by_reset_token(
         ),
     )
     return result.scalars().first()
-
-
-async def create_email_migration_code(
-    migration_object: models_users.UserEmailMigrationCode,
-    db_session: AsyncSession,
-) -> models_users.UserEmailMigrationCode:
-    db_session.add(migration_object)
-    try:
-        await db_session.commit()
-    except IntegrityError:
-        await db_session.rollback()
-        raise
-    else:
-        return migration_object
 
 
 async def delete_recover_request_by_email(db_session: AsyncSession, email: str):

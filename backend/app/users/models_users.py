@@ -3,7 +3,6 @@ from uuid import UUID
 
 from app.types.sqlalchemy import Base
 from app.users.types_users import AccountType
-from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 

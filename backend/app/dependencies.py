@@ -11,6 +11,7 @@ import logging
 from collections.abc import AsyncGenerator, Callable
 from functools import lru_cache
 from typing import Annotated, cast
+from uuid import UUID
 
 import jwt
 from app.login.schemas_login import TokenPayload
@@ -113,7 +114,7 @@ async def get_current_user(
             detail="Could not validate credentials",
         )
     user = await cruds_users.get_user_by_id(
-        db_session=db_session, user_id=token_data.sub
+        db_session=db_session, user_id=UUID(token_data.sub)
     )
     if not user:
         raise HTTPException(status_code=404, detail="User not found")

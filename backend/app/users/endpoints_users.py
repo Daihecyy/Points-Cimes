@@ -24,7 +24,9 @@ router = APIRouter(prefix="/users", tags=["users"])
     response_model=Sequence[schemas_users.User],
 )
 async def read_users(
-    db_session: Annotated[AsyncSession, get_db_session], skip: int = 0, limit: int = 100
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    skip: int = 0,
+    limit: int = 100,
 ):
     """
     Retrieve users.
@@ -108,7 +110,7 @@ async def update_user_me(
 
 
 @router.post(
-    "/users/make-admin",
+    "/me/make-admin",
     status_code=200,
 )
 async def make_admin(

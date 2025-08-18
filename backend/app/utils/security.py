@@ -41,8 +41,6 @@ async def authenticate_user(
     """
     user = await cruds_users.get_user_by_email(db_session=db_session, email=email)
     if not user:
-        # In order to prevent timing attacks, we simulate the delay the password validation would have taken if the account existed
-        verify_password("", "")
         return None
 
     if not verify_password(password, user.password_hash):

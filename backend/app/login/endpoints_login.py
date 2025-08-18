@@ -7,6 +7,7 @@ from app.login import schemas_login
 from app.login.schemas_login import Token
 from app.types import standard_responses
 from app.users import cruds_users, models_users, schemas_users
+from app.users.endpoints_users import points_cimes_access_logger
 from app.users.types_users import AccountType
 from app.utils import mail, security
 from app.utils.config import Settings
@@ -54,8 +55,8 @@ def test_token(user: Annotated[models_users.User, is_user]) -> Any:
 @router.post("/password-recovery/{email}")
 async def recover_password(
     email: str,
-    db_session: Annotated[AsyncSession, get_db_session],
-    settings: Annotated[Settings, get_settings],
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> standard_responses.Message:
     """
     Password Recovery
@@ -84,9 +85,9 @@ async def recover_password(
 
 @router.post("/verify-email/", response_model=standard_responses.Message)
 async def verify_email(
-    db_session: Annotated[AsyncSession, get_db_session],
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
     body: schemas_login.AccountActivation,
-    settings: Annotated[Settings, get_settings],
+    settings: Annotated[Settings, Depends(get_settings)],
 ):
     """
     Verify the email adress exists
@@ -100,7 +101,7 @@ async def verify_email(
             detail="The user with this email does not exist in the system.",
         )
 
-    if unconfirmed_user.expire_on > datetime.now(UTC):
+    if unconfirmed_user.expire_on < datetime.now(UTC):
         raise HTTPException(
             status_code=404,
             detail="Activation code expired",
@@ -134,9 +135,9 @@ async def verify_email(
 
 @router.post("/reset-password/")
 async def reset_password(
-    db_session: Annotated[AsyncSession, get_db_session],
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
     body: schemas_login.NewPassword,
-    settings: Annotated[Settings, get_settings],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> standard_responses.Message:
     """
     Reset password
@@ -168,8 +169,8 @@ async def reset_password(
 )
 async def recover_password_html_content(
     email: str,
-    db_session: Annotated[AsyncSession, get_db_session],
-    settings: Annotated[Settings, get_settings],
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    settings: Annotated[Settings, Depends(get_settings)],
 ) -> Any:
     """
     HTML Content for Password Recovery
