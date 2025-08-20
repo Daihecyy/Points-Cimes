@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from app.reports.types_reports import ReportStatus, ReportType
+from app.modules.reports.types_reports import ReportStatus, ReportType
 from app.types.sqlalchemy import Base, PrimaryKey
 from geoalchemy2 import Geometry, WKBElement
 from geoalchemy2.shape import to_shape

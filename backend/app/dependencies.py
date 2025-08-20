@@ -14,16 +14,20 @@ from typing import Annotated, cast
 from uuid import UUID
 
 import jwt
-from app.login.schemas_login import TokenPayload
-from app.users import cruds_users, models_users
-from app.users.types_users import AccountType
+from app.modules.login.schemas_login import TokenPayload
+from app.modules.users import cruds_users, models_users
+from app.modules.users.types_users import AccountType
 from app.utils import security
 from app.utils.config import Settings, construct_prod_settings
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
-from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
-                                    async_sessionmaker, create_async_engine)
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 points_cimes_access_logger = logging.getLogger("points-cimes.access")
 points_cimes_error_logger = logging.getLogger("points-cimes.error")

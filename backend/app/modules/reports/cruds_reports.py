@@ -2,7 +2,7 @@ import json
 from collections.abc import Sequence
 from uuid import UUID
 
-from app.reports import models_reports, schemas_reports, types_reports
+from app.modules.reports import models_reports, schemas_reports, types_reports
 from geoalchemy2 import WKTElement
 from geoalchemy2.functions import ST_X, ST_Y
 from sqlalchemy import RowMapping, delete, select, update

@@ -2,9 +2,9 @@
 
 from app.app import get_application
 from app.dependencies import get_settings
-from app.login import endpoints_login
-from app.reports import endpoints_reports
-from app.users import endpoints_users
+from app.modules.login import endpoints_login
+from app.modules.reports import endpoints_reports
+from app.modules.users import endpoints_users
 from app.utils.fastapi import use_route_path_as_operation_ids
 
 # The application is started with the following function call:

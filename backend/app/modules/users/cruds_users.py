@@ -1,8 +1,8 @@
 from collections.abc import Sequence
 from uuid import UUID
 
-from app.users import models_users, schemas_users
-from app.users.types_users import AccountType
+from app.modules.users import models_users, schemas_users
+from app.modules.users.types_users import AccountType
 from sqlalchemy import and_, delete, not_, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -1,8 +1,8 @@
 from datetime import datetime
 from uuid import UUID
 
+from app.modules.users.types_users import AccountType
 from app.types.sqlalchemy import Base
-from app.users.types_users import AccountType
 from sqlalchemy.orm import Mapped, mapped_column
 
 

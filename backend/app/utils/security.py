@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import jwt
-from app.users import cruds_users, models_users
+from app.modules.users import cruds_users, models_users
 from app.utils.config import Settings
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession

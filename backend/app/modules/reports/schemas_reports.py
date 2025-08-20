@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict
 from uuid import UUID
 
-from app.reports.types_reports import ReportType
+from app.modules.reports.types_reports import ReportType
 from geoalchemy2 import WKBElement
 from geoalchemy2.types import Geometry
 from pydantic import BaseModel, ConfigDict

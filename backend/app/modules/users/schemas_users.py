@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from app.users.types_users import AccountType
+from app.modules.users.types_users import AccountType
 from app.utils import validators
 from pydantic import BaseModel, ConfigDict, field_validator
 

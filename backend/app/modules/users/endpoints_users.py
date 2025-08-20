@@ -4,9 +4,9 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, Sequence
 
 from app.dependencies import get_db_session, get_settings, is_user
+from app.modules.users import cruds_users, models_users, schemas_users
+from app.modules.users.types_users import AccountType
 from app.types import standard_responses
-from app.users import cruds_users, models_users, schemas_users
-from app.users.types_users import AccountType
 from app.utils import mail
 from app.utils.config import Settings
 from app.utils.security import get_password_hash, verify_password

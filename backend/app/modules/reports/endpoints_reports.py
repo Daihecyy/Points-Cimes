@@ -6,8 +6,12 @@ from typing import Annotated
 from uuid import UUID
 
 from app.dependencies import get_db_session
-from app.reports import (cruds_reports, models_reports, schemas_reports,
-                         types_reports)
+from app.modules.reports import (
+    cruds_reports,
+    models_reports,
+    schemas_reports,
+    types_reports,
+)
 from fastapi import APIRouter, Depends, HTTPException
 from geoalchemy2 import WKBElement, WKTElement
 from sqlalchemy.ext.asyncio import AsyncSession

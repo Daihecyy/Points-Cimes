@@ -3,12 +3,12 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from app.dependencies import get_db_session, get_settings, is_user
-from app.login import schemas_login
-from app.login.schemas_login import Token
+from app.modules.login import schemas_login
+from app.modules.login.schemas_login import Token
+from app.modules.users import cruds_users, models_users, schemas_users
+from app.modules.users.endpoints_users import points_cimes_access_logger
+from app.modules.users.types_users import AccountType
 from app.types import standard_responses
-from app.users import cruds_users, models_users, schemas_users
-from app.users.endpoints_users import points_cimes_access_logger
-from app.users.types_users import AccountType
 from app.utils import mail, security
 from app.utils.config import Settings
 from fastapi import APIRouter, Depends, HTTPException
