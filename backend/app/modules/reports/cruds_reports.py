@@ -40,7 +40,8 @@ async def get_reports_in_location(
     result = await db_session.execute(
         select(
             models_reports.Report,
-            models_reports.Report.location.ST_AsGeoJSON().label("location_geojson"),
+            ST_Y(models_reports.Report.location).label("latitude"),
+            ST_X(models_reports.Report.location).label("longitude"),
         ).filter(models_reports.Report.location.ST_Intersects(location))
     )
     return result.mappings().all()

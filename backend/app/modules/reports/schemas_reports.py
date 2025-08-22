@@ -31,7 +31,7 @@ class Report(ReportSimple):
 class ReportCreation(BaseModel):
     title: str
     report_type: ReportType
-    location: Dict[str, Any]
+    location: str
     description: str
 
 

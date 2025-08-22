@@ -12,5 +12,9 @@ export default defineConfig({
       asClass: true,
       operationId: true,
     },
+    // {
+    //   name: '@hey-api/typescript',
+    //   enums: true,
+    // }
   ],
 })

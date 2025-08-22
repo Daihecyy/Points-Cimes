@@ -10,14 +10,16 @@ import React, { PropsWithChildren, RefObject } from "react";
 import {
 	View
 } from "react-native";
-import tw from "twrnc";
+import tw, { Style } from "twrnc";
 
 
 interface CustomMapProps extends PropsWithChildren {
 	cameraRef: RefObject<CameraRef | null>;
-	setIsMapLoaded: (isMapLoaded: boolean) => void;
-	setCurrentZoomLevel: (currentZoomLevel: number) => void;
-	startingCenter: [number, number]
+	setIsMapLoaded?: (isMapLoaded: boolean) => void;
+	setCurrentZoomLevel?: (currentZoomLevel: number) => void;
+	startingCenter: [number, number];
+	setMapCenter?: (mapCenter: number[]) => void;
+	style?: Style;
 }
 
 // License: https://operations.osmfoundation.org/policies/tiles/
@@ -41,20 +43,25 @@ export const OSM_RASTER_STYLE = {
 	],
 };
 
-function CustomMap({ cameraRef, setIsMapLoaded, setCurrentZoomLevel, startingCenter, children }: CustomMapProps) {
+function CustomMap({ cameraRef, setIsMapLoaded, setCurrentZoomLevel, startingCenter, children, setMapCenter, style }: CustomMapProps) {
 	const onMapDidFinishLoading = () => {
-		setIsMapLoaded(true);
+		if (setIsMapLoaded) {
+			setIsMapLoaded(true);
+		}
 	};
 	const handleCameraChanged = (
 		feature: GeoJSON.Feature<GeoJSON.Point, RegionPayload>,
 	) => {
 		// WARNING : Watch for performance impact
-		if (feature.properties.zoomLevel) {
+		if (setCurrentZoomLevel && feature.properties.zoomLevel) {
 			setCurrentZoomLevel(feature.properties.zoomLevel);
+		}
+		if (setMapCenter && feature.geometry.coordinates) {
+			setMapCenter(feature.geometry.coordinates)
 		}
 	};
 	return (
-		<View style={tw`flex-1`}>
+		<View style={tw.style("flex-1", style)}>
 			<MapView
 				style={tw`flex-1`}
 				onDidFinishLoadingMap={onMapDidFinishLoading}

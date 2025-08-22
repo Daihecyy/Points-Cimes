@@ -66,7 +66,7 @@ async def create_user(
         created_on=datetime.now(UTC),
     )
 
-    db_user = await cruds_users.create_user(db_session=db_session, user=user)
+    await cruds_users.create_user(db_session=db_session, user=user)
 
     if settings.emails_enabled and user_in.email:
         email_data = mail.generate_new_account_email(
@@ -81,7 +81,7 @@ async def create_user(
             html_content=email_data.html_content,
             settings=settings,
         )
-    return db_user
+    return user
 
 
 @router.patch("/me", status_code=204)

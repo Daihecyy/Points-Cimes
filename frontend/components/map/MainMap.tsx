@@ -104,7 +104,7 @@ function MainMap() {
 	};
 	useEffect(() => {
 		requestLocationPermission();
-		onGetReportsById("a6f8f86c-7ee0-4519-826d-7588f2ea0f4b");
+		onGetReportsById("578dfc85-53fe-47eb-8d00-e2260a32b158");
 	}, []);
 	return (
 		<View style={styles.page}>
@@ -132,7 +132,7 @@ function MainMap() {
 			<Pressable onPress={centerUserLocation} style={styles.recenterButton}>
 				<IconSymbol name={"location.circle"} color={""} />
 			</Pressable>
-			<AddReport></AddReport>
+			<AddReport userLocation={userLastLocation} startingLocation={MONT_BLANC_COORDINATES}></AddReport>
 		</View>
 	);
 }
