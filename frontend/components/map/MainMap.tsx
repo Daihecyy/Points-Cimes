@@ -1,28 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
+import { Report, Reports } from "@/client";
+import { client } from "@/client/client.gen";
+import useLocationPermission from "@/hooks/useLocationPermission";
 import {
-	View,
-	StyleSheet,
-	PermissionsAndroid,
-	Alert,
-	Pressable,
-} from "react-native";
-import {
-	MapView,
-	RasterLayer,
-	RasterSource,
-	UserLocation,
-	Camera,
 	CameraRef,
 	Location,
-	MapLibreRNEvent,
 	RegionPayload,
+	UserLocation
 } from "@maplibre/maplibre-react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+	Alert,
+	Pressable,
+	StyleSheet,
+	View
+} from "react-native";
 import { IconSymbol } from "../ui/IconSymbol";
+import AddReport from "./AddReport";
+import CustomMap from "./CustomMap";
 import ReportMarker from "./ReportMarker";
-import { Report, Reports } from "@/client";
-import { createClient } from "@/client/client";
 
-const MONT_BLANC_COORDINATES = [6.865575, 45.832119];
+const MONT_BLANC_COORDINATES = [6.865575, 45.832119] as [number, number];
 // License: https://operations.osmfoundation.org/policies/tiles/
 export const OSM_RASTER_STYLE = {
 	version: 8,
@@ -44,19 +41,16 @@ export const OSM_RASTER_STYLE = {
 	],
 };
 
-const client = createClient(
-	{
-		baseUrl: 'http://192.168.1.180:8000'
-	}
-)
 function MainMap() {
 	const cameraRef = useRef<CameraRef>(null);
 	const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
+	const { hasLocationPermission, requestLocationPermission } = useLocationPermission();
 	const [reports, setReports] = useState<Report[]>([]);
 	const [currentZoomLevel, setCurrentZoomLevel] = useState<number>(15);
 	const [userLastLocation, setUserLastLocation] = useState<
 		Location["coords"] | null
 	>(null);
+
 	const onGetReportsById = async (reportId: string) => {
 		console.log("fired");
 		const { data, error } = await Reports.getReportsReportId({
@@ -73,50 +67,14 @@ function MainMap() {
 		console.log(data)
 		setReports([data!]);
 	};
-	const [hasLocationPermission, setHasLocationPermission] =
-		useState<boolean>(false);
-	const requestLocationPermission = async () => {
-		try {
-			const granted = await PermissionsAndroid.request(
-				PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-				{
-					title: "Location Permission",
-					message:
-						"This app needs access to your location to show you on the map.",
-					buttonNeutral: "Ask Me Later",
-					buttonNegative: "Cancel",
-					buttonPositive: "OK",
-				},
-			);
-			if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-				setHasLocationPermission(true);
-			} else {
-				setHasLocationPermission(false);
-				Alert.alert(
-					"Permission Denied",
-					"Location access is required to show your position on the map. Please enable it in settings.",
-				);
-			}
-		} catch (err) {
-			console.warn(err);
-			Alert.alert(
-				"Error",
-				"An error occurred while requesting location permission.",
-			);
-		}
-	};
-	const onMapDidFinishLoading = () => {
-		console.log("Map has finished loading");
-		setIsMapLoaded(true);
-	};
 	const userLocationUpdate = (event: Location) => {
 		if (event.coords) {
 			setUserLastLocation(event.coords);
 		}
 	};
+
 	const centerUserLocation = () => {
 		if (cameraRef.current && hasLocationPermission && userLastLocation) {
-			console.log(userLastLocation);
 			cameraRef.current.setCamera({
 				pitch: 0,
 				centerCoordinate: [
@@ -135,6 +93,7 @@ function MainMap() {
 			requestLocationPermission(); // Prompt for permission again
 		}
 	};
+
 	const handleCameraChanged = (
 		feature: GeoJSON.Feature<GeoJSON.Point, RegionPayload>,
 	) => {
@@ -149,23 +108,7 @@ function MainMap() {
 	}, []);
 	return (
 		<View style={styles.page}>
-			<MapView
-				style={styles.map}
-				onDidFinishLoadingMap={onMapDidFinishLoading}
-				onRegionIsChanging={handleCameraChanged}
-				localizeLabels={true}
-			>
-				<RasterSource
-					id="osm-raster-source"
-					tileUrlTemplates={OSM_RASTER_STYLE.sources.osm.tiles}
-					{...OSM_RASTER_STYLE.sources.osm}
-				>
-					<RasterLayer
-						id="osm-raster-layer"
-						style={{ rasterOpacity: 1 }}
-						belowLayerID="org.maplibre.annotations.points" // IMPORTANT
-					/>
-				</RasterSource>
+			<CustomMap cameraRef={cameraRef} setIsMapLoaded={setIsMapLoaded} setCurrentZoomLevel={setCurrentZoomLevel} startingCenter={MONT_BLANC_COORDINATES} >
 				{currentZoomLevel > 1 &&
 					reports.map((report) => {
 						return (
@@ -185,18 +128,11 @@ function MainMap() {
 						onUpdate={userLocationUpdate}
 					/>
 				)}
-				<Camera
-					ref={cameraRef}
-					defaultSettings={{
-						centerCoordinate: MONT_BLANC_COORDINATES,
-						zoomLevel: 15,
-						animationDuration: 1000,
-					}}
-				/>
-			</MapView>
+			</CustomMap>
 			<Pressable onPress={centerUserLocation} style={styles.recenterButton}>
 				<IconSymbol name={"location.circle"} color={""} />
 			</Pressable>
+			<AddReport></AddReport>
 		</View>
 	);
 }
