@@ -18,6 +18,7 @@ import { IconSymbol } from "../ui/IconSymbol";
 import AddReport from "./AddReport";
 import CustomMap from "./CustomMap";
 import ReportMarker from "./ReportMarker";
+import ReportModal from "./ReportModal";
 
 const MONT_BLANC_COORDINATES = [6.865575, 45.832119] as [number, number];
 // License: https://operations.osmfoundation.org/policies/tiles/
@@ -44,12 +45,19 @@ export const OSM_RASTER_STYLE = {
 function MainMap() {
 	const cameraRef = useRef<CameraRef>(null);
 	const [isMapLoaded, setIsMapLoaded] = useState<boolean>(false);
+	const [modalReport, setModalReport] = useState<Report>();
+	const [reportModalVisible, setReportModalVisible] = useState<boolean>(false);
 	const { hasLocationPermission, requestLocationPermission } = useLocationPermission();
 	const [reports, setReports] = useState<Report[]>([]);
 	const [currentZoomLevel, setCurrentZoomLevel] = useState<number>(15);
 	const [userLastLocation, setUserLastLocation] = useState<
 		Location["coords"] | null
 	>(null);
+
+	const handleReportMarkerPress = (report: Report) => {
+		setModalReport(report);
+		setReportModalVisible(true);
+	}
 
 	const onGetReportsById = async (reportId: string) => {
 		console.log("fired");
@@ -118,6 +126,7 @@ function MainMap() {
 								coordinate={[report.longitude, report.latitude]}
 								title={report.title}
 								type={report.report_type}
+								handlePress={() => handleReportMarkerPress(report)}
 							/>
 						);
 					})}
@@ -129,6 +138,7 @@ function MainMap() {
 					/>
 				)}
 			</CustomMap>
+			{modalReport && <ReportModal report={modalReport} modalVisible={reportModalVisible} setModalVisible={setReportModalVisible} />}
 			<Pressable onPress={centerUserLocation} style={styles.recenterButton}>
 				<IconSymbol name={"location.circle"} color={""} />
 			</Pressable>
